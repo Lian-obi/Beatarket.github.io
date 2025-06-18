@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузить бит | BeatMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.css">
+    <style>
+        :root {
+            --primary: #1db954;
+            --primary-light: rgba(29, 185, 84, 0.1);
+            --dark: #1a1a1a;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Навигация */
+        nav {
+            display: flex;
+            background-color: #1a1a1a;
+            padding: 15px 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+            padding: 5px 0;
+        }
+        
+        nav a:hover {
+            color: #1db954;
+        }
+        
+        .auth-buttons {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .user-icon {
+            margin-left: auto;
+            color: white;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: rgba(29, 185, 84, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .user-icon:hover {
+            background: rgba(29, 185, 84, 0.2);
+        }
+
+        /* Основной контент */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .page-description {
+            color: var(--gray);
+        }
+
+        /* Форма загрузки */
+        .upload-form {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Загрузка файлов */
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(29, 185, 84, 0.05);
+        }
+
+        .file-upload i {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .file-upload-text {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .file-upload-hint {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        #file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--gray);
+            display: none;
+        }
+
+        /* Предпрослушивание */
+        .preview-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .waveform {
+            height: 120px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .audio-btn {
+            padding: 8px 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .audio-btn:hover {
+            background: #169c46;
+        }
+
+        /* Прогресс загрузки */
+        .upload-progress {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Лицензии */
+        .license-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .license-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .license-card:hover {
+            border-color: var(--primary);
+        }
+
+        .license-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .license-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .license-price {
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .license-features {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .license-features ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        /* Кнопка отправки */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background: #169c46;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Ошибки */
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 0 10px;
+            }
+
+            .upload-form {
+                padding: 20px;
+            }
+
+            .license-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav>
+        <a href="index.html">Главная</a>
+        <a href="beats.html">Биты</a>
+        <a href="sell.html">Продать бит</a>
+        <a href="contact.html">Контакты</a>
+        
+        <div class="auth-buttons" id="auth-buttons">
+            <a href="auth.html" class="login-btn">Вход</a>
+            <a href="auth.html#register" class="register-btn">Регистрация</a>
+        </div>
+        
+        <a href="seller-dashboard.html" class="user-icon" id="user-icon">
+            <i class="fas fa-user-circle"></i>
+            <span id="user-name"></span>
+        </a>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Загрузить бит</h1>
+            <p class="page-description">Заполните информацию о вашем бите для публикации в каталоге</p>
+        </div>
+
+        <form id="beat-upload-form" class="upload-form">
+            <!-- Основная информация -->
+            <div class="form-group">
+                <label for="beat-title" class="form-label required">Название бита</label>
+                <input type="text" id="beat-title" class="form-control" placeholder="Например: Midnight Trap" required>
+                <div class="error-message" id="title-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="beat-genre" class="form-label required">Жанр</label>
+                <select id="beat-genre" class="form-control" required>
+                    <option value="">Выберите жанр</option>
+                    <option value="trap">Trap</option>
+                    <option value="hiphop">Hip-Hop</option>
+                    <option value="rnb">R&B</option>
+                    <option value="drill">Drill</option>
+                    <option value="pop">Pop</option>
+                    <option value="electronic">Electronic</option>
+                    <option value="lofi">Lo-Fi</option>
+                    <option value="other">Другой</option>
+                </select>
+                <div class="error-message" id="genre-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="beat-bpm" class="form-label">BPM</label>
+                <input type="number" id="beat-bpm" class="form-control" placeholder="120" min="60" max="300">
+            </div>
+
+            <div class="form-group">
+                <label for="beat-description" class="form-label">Описание</label>
+                <textarea id="beat-description" class="form-control" placeholder="Опишите ваш бит, вдохновение, особенности..."></textarea>
+            </div>
+
+            <!-- Загрузка файлов -->
+            <div class="form-group">
+                <label class="form-label required">Аудиофайл</label>
+                <div class="file-upload" id="audio-upload">
+                    <i class="fas fa-music"></i>
+                    <div class="file-upload-text">Перетащите сюда ваш аудиофайл</div>
+                    <div class="file-upload-hint">Или нажмите для выбора файла (MP3, WAV)</div>
+                    <input type="file" id="beat-audio" accept=".mp3,.wav" style="display: none;">
+                    <div id="file-name"></div>
+                </div>
+                <div class="error-message" id="audio-error"></div>
+            </div>
+
+            <!-- Предпрослушивание -->
+            <div class="preview-section" id="preview-section">
+                <label class="form-label">Предпрослушивание</label>
+                <div class="waveform" id="waveform"></div>
+                <div class="audio-controls">
+                    <button type="button" class="audio-btn" id="play-btn"><i class="fas fa-play"></i> Слушать</button>
+                    <button type="button" class="audio-btn" id="pause-btn"><i class="fas fa-pause"></i> Пауза</button>
+                </div>
+            </div>
+
+            <!-- Обложка -->
+            <div class="form-group">
+                <label class="form-label">Обложка</label>
+                <div class="file-upload" id="cover-upload">
+                    <i class="fas fa-image"></i>
+                    <div class="file-upload-text">Перетащите сюда обложку</div>
+                    <div class="file-upload-hint">Или нажмите для выбора файла (JPG, PNG)</div>
+                    <input type="file" id="beat-cover" accept="image/*" style="display: none;">
+                    <div id="cover-name"></div>
+                </div>
+            </div>
+
+            <!-- Лицензии -->
+            <div class="form-group">
+                <label class="form-label required">Тип лицензии</label>
+                <div class="license-options">
+                    <div class="license-card" data-license="basic">
+                        <div class="license-title">Basic</div>
+                        <div class="license-price">$29.99</div>
+                        <div class="license-features">
+                            <ul>
+                                <li>До 10,000 потоков</li>
+                                <li>Неэксклюзивная</li>
+                                <li>Для независимых артистов</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="license-card" data-license="premium">
+                        <div class="license-title">Premium</div>
+                        <div class="license-price">$59.99</div>
+                        <div class="license-features">
+                            <ul>
+                                <li>До 100,000 потоков</li>
+                                <li>Неэксклюзивная</li>
+                                <li>Для лейблов</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="license-card" data-license="exclusive">
+                        <div class="license-title">Exclusive</div>
+                        <div class="license-price">$199.99</div>
+                        <div class="license-features">
+                            <ul>
+                                <li>Без ограничений</li>
+                                <li>Эксклюзивные права</li>
+                                <li>Для коммерческих проектов</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="beat-license" required>
+                <div class="error-message" id="license-error"></div>
+            </div>
+
+            <!-- Теги -->
+            <div class="form-group">
+                <label for="beat-tags" class="form-label">Теги</label>
+                <input type="text" id="beat-tags" class="form-control" placeholder="dark, trap, bass, aggressive">
+                <div class="form-hint">Укажите ключевые слова через запятую</div>
+            </div>
+
+            <!-- Цена -->
+            <div class="form-group">
+                <label for="beat-price" class="form-label required">Цена ($)</label>
+                <input type="number" id="beat-price" class="form-control" placeholder="29.99" min="5" max="500" step="0.01" required>
+                <div class="error-message" id="price-error"></div>
+            </div>
+
+            <!-- Прогресс загрузки -->
+            <div class="upload-progress" id="upload-progress">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Подготовка к загрузке...</div>
+            </div>
+
+            <!-- Кнопка отправки -->
+            <button type="submit" class="submit-btn" id="submit-btn" disabled>
+                <span id="submit-text">Опубликовать бит</span>
+                <span id="loading-spinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i> Загрузка...</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Подключаем Wavesurfer.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
+
+    <script>
+        // Проверка авторизации
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isSellerLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                window.location.href = 'auth.html?redirect=sell.html';
+                return;
+            }
+
+            // Отображаем имя пользователя
+            document.getElementById('user-icon').style.display = 'flex';
+            document.getElementById('user-name').textContent = localStorage.getItem('sellerName') || 'Кабинет';
+            document.getElementById('auth-buttons').style.display = 'none';
+
+            // Инициализация Wavesurfer
+            initWaveSurfer();
+            
+            // Инициализация обработчиков событий
+            initEventListeners();
+        });
+
+        // Wavesurfer
+        let wavesurfer;
+        function initWaveSurfer() {
+            wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: '#ddd',
+                progressColor: '#1db954',
+                cursorColor: '#1db954',
+                barWidth: 2,
+                barRadius: 3,
+                cursorWidth: 1,
+                height: 100,
+                barGap: 2,
+                responsive: true
+            });
+
+            wavesurfer.on('ready', function() {
+                document.getElementById('play-btn').addEventListener('click', function() {
+                    wavesurfer.play();
+                });
+
+                document.getElementById('pause-btn').addEventListener('click', function() {
+                    wavesurfer.pause();
+                });
+            });
+        }
+
+        // Обработчики событий
+        function initEventListeners() {
+            // Загрузка аудио
+            const audioUpload = document.getElementById('audio-upload');
+            const beatAudioInput = document.getElementById('beat-audio');
+            
+            audioUpload.addEventListener('click', function() {
+                beatAudioInput.click();
+            });
+
+            beatAudioInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    document.getElementById('file-name').textContent = file.name;
+                    document.getElementById('file-name').style.display = 'block';
+                    
+                    // Показываем превью
+                    document.getElementById('preview-section').style.display = 'block';
+                    
+                    // Загружаем аудио в Wavesurfer
+                    const audioUrl = URL.createObjectURL(file);
+                    wavesurfer.load(audioUrl);
+                    
+                    // Активируем кнопку отправки
+                    validateForm();
+                }
+            });
+
+            // Drag and drop для аудио
+            audioUpload.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#1db954';
+                this.style.backgroundColor = 'rgba(29, 185, 84, 0.05)';
+            });
+
+            audioUpload.addEventListener('dragleave', function() {
+                this.style.borderColor = '#ddd';
+                this.style.backgroundColor = '';
+            });
+
+            audioUpload.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#ddd';
+                this.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.includes('audio')) {
+                        beatAudioInput.files = e.dataTransfer.files;
+                        document.getElementById('file-name').textContent = file.name;
+                        document.getElementById('file-name').style.display = 'block';
+                        
+                        // Показываем превью
+                        document.getElementById('preview-section').style.display = 'block';
+                        
+                        // Загружаем аудио в Wavesurfer
+                        const audioUrl = URL.createObjectURL(file);
+                        wavesurfer.load(audioUrl);
+                        
+                        // Активируем кнопку отправки
+                        validateForm();
+                    } else {
+                        showError('audio-error', 'Пожалуйста, загрузите аудиофайл');
+                    }
+                }
+            });
+
+            // Загрузка обложки
+            const coverUpload = document.getElementById('cover-upload');
+            const beatCoverInput = document.getElementById('beat-cover');
+            
+            coverUpload.addEventListener('click', function() {
+                beatCoverInput.click();
+            });
+
+            beatCoverInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    document.getElementById('cover-name').textContent = file.name;
+                    document.getElementById('cover-name').style.display = 'block';
+                }
+            });
+
+            // Drag and drop для обложки
+            coverUpload.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#1db954';
+                this.style.backgroundColor = 'rgba(29, 185, 84, 0.05)';
+            });
+
+            coverUpload.addEventListener('dragleave', function() {
+                this.style.borderColor = '#ddd';
+                this.style.backgroundColor = '';
+            });
+
+            coverUpload.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#ddd';
+                this.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.includes('image')) {
+                        beatCoverInput.files = e.dataTransfer.files;
+                        document.getElementById('cover-name').textContent = file.name;
+                        document.getElementById('cover-name').style.display = 'block';
+                    } else {
+                        alert('Пожалуйста, загрузите изображение');
+                    }
+                }
+            });
+
+            // Выбор лицензии
+            document.querySelectorAll('.license-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.license-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    document.getElementById('beat-license').value = this.dataset.license;
+                    validateForm();
+                });
+            });
+
+            // Валидация формы при изменении
+            document.getElementById('beat-title').addEventListener('input', validateForm);
+            document.getElementById('beat-genre').addEventListener('change', validateForm);
+            document.getElementById('beat-price').addEventListener('input', validateForm);
+
+            // Отправка формы
+            document.getElementById('beat-upload-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    uploadBeat();
+                }
+            });
+        }
+
+        // Валидация формы
+        function validateForm() {
+            let isValid = true;
+            hideErrors();
+
+            // Проверка названия
+            if (!document.getElementById('beat-title').value.trim()) {
+                showError('title-error', 'Введите название бита');
+                isValid = false;
+            }
+
+            // Проверка жанра
+            if (!document.getElementById('beat-genre').value) {
+                showError('genre-error', 'Выберите жанр');
+                isValid = false;
+            }
+
+            // Проверка аудиофайла
+            if (!document.getElementById('beat-audio').files.length) {
+                showError('audio-error', 'Загрузите аудиофайл');
+                isValid = false;
+            }
+
+            // Проверка лицензии
+            if (!document.getElementById('beat-license').value) {
+                showError('license-error', 'Выберите тип лицензии');
+                isValid = false;
+            }
+
+            // Проверка цены
+            const price = parseFloat(document.getElementById('beat-price').value);
+            if (isNaN(price) || price < 5 || price > 500) {
+                showError('price-error', 'Цена должна быть от $5 до $500');
+                isValid = false;
+            }
+
+            // Активация кнопки
+            document.getElementById('submit-btn').disabled = !isValid;
+            return isValid;
+        }
+
+        // Показать ошибку
+        function showError(id, message) {
+            const element = document.getElementById(id);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        // Скрыть все ошибки
+        function hideErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // Загрузка бита
+        function uploadBeat() {
+            const form = document.getElementById('beat-upload-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const progressBar = document.getElementById('progress-bar-fill');
+            const progressText = document.getElementById('progress-text');
+            const uploadProgress = document.getElementById('upload-progress');
+
+            // Показываем прогресс
+            submitBtn.disabled = true;
+            submitText.style.display = 'none';
+            loadingSpinner.style.display = 'inline';
+            uploadProgress.style.display = 'block';
+
+            // Эмуляция загрузки (в реальном проекте - AJAX)
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Загрузка завершена!';
+                    
+                    // Успешная загрузка
+                    setTimeout(() => {
+                        alert('Бит успешно загружен и отправлен на модерацию!');
+                        form.reset();
+                        document.getElementById('preview-section').style.display = 'none';
+                        document.getElementById('file-name').style.display = 'none';
+                        document.getElementById('cover-name').style.display = 'none';
+                        document.querySelectorAll('.license-card').forEach(c => {
+                            c.classList.remove('selected');
+                        });
+                        document.getElementById('beat-license').value = '';
+                        wavesurfer.empty();
+                        
+                        // Сброс формы
+                        submitBtn.disabled = false;
+                        submitText.style.display = 'inline';
+                        loadingSpinner.style.display = 'none';
+                        uploadProgress.style.display = 'none';
+                        progressBar.style.width = '0%';
+                    }, 1000);
+                } else {
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = `Загружено ${Math.round(progress)}%`;
+                }
+            }, 300);
+        }
+    </script>
+</body>
+</html>

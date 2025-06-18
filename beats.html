@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог битов | BeatMarket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1db954;
+            --primary-light: rgba(29, 185, 84, 0.1);
+            --dark: #1a1a1a;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --danger: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Навигация */
+        nav {
+            display: flex;
+            background-color: #1a1a1a;
+            padding: 15px 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+            padding: 5px 0;
+        }
+        
+        nav a:hover {
+            color: #1db954;
+        }
+        
+        .auth-buttons {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .user-icon {
+            margin-left: auto;
+            color: white;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: rgba(29, 185, 84, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .user-icon:hover {
+            background: rgba(29, 185, 84, 0.2);
+        }
+
+        /* Основной контент */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        /* Поиск и фильтры */
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 12px 15px;
+            padding-right: 40px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Сетка битов */
+        .beat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .beat-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .beat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .beat-cover {
+            width: 100%;
+            height: 180px;
+            background: var(--dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .beat-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .play-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .beat-card:hover .play-btn {
+            opacity: 1;
+        }
+
+        .beat-info {
+            padding: 15px;
+        }
+
+        .beat-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .beat-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .beat-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-to-cart:hover {
+            background: #169c46;
+        }
+
+        .add-to-cart.added {
+            background: #28a745;
+        }
+
+        /* Корзина */
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-price {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .remove-item {
+            color: var(--danger);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .cart-total {
+            text-align: right;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background: #169c46;
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .beat-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .beat-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            select {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .beat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav>
+        <a href="index.html">Главная</a>
+        <a href="beats.html">Биты</a>
+        <a href="sell.html">Продать бит</a>
+        <a href="contact.html">Контакты</a>
+        
+        <div class="auth-buttons" id="auth-buttons">
+            <a href="auth.html" class="login-btn">Вход</a>
+            <a href="auth.html#register" class="register-btn">Регистрация</a>
+        </div>
+        
+        <a href="seller-dashboard.html" class="user-icon" id="user-icon">
+            <i class="fas fa-user-circle"></i>
+            <span id="user-name"></span>
+        </a>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Каталог битов</h1>
+            <div class="filter-group">
+                <select id="genre-filter">
+                    <option value="all">Все жанры</option>
+                    <option value="trap">Trap</option>
+                    <option value="hiphop">Hip-Hop</option>
+                    <option value="rnb">R&B</option>
+                    <option value="drill">Drill</option>
+                    <option value="pop">Pop</option>
+                </select>
+                <select id="bpm-filter">
+                    <option value="all">Любой BPM</option>
+                    <option value="60-90">60-90</option>
+                    <option value="90-120">90-120</option>
+                    <option value="120-150">120-150</option>
+                    <option value="150+">150+</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="search-filters">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Поиск по названию или тегам...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <select id="sort-by">
+                <option value="popular">По популярности</option>
+                <option value="newest">Сначала новые</option>
+                <option value="price-low">Цена (по возрастанию)</option>
+                <option value="price-high">Цена (по убыванию)</option>
+            </select>
+        </div>
+
+        <div class="beat-grid" id="beat-grid">
+            <!-- Биты будут загружаться здесь -->
+        </div>
+    </div>
+
+    <!-- Корзина -->
+    <div class="cart-icon" id="cart-icon">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cart-count">0</span>
+    </div>
+
+    <div class="cart-modal" id="cart-modal">
+        <div class="cart-header">
+            <h2 class="cart-title">Ваша корзина</h2>
+            <button class="close-cart" id="close-cart">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Товары в корзине -->
+            <div class="empty-cart">Корзина пуста</div>
+        </div>
+        <div class="cart-total">
+            Итого: $<span id="cart-total">0</span>
+        </div>
+        <button class="checkout-btn" id="checkout-btn">Оформить заказ</button>
+    </div>
+
+    <!-- Аудиоплеер (скрытый) -->
+    <audio id="audio-player"></audio>
+
+    <script>
+        // Данные битов (в реальном проекте загружаются с сервера)
+        const beats = [
+            {
+                id: 1,
+                title: "Midnight Trap",
+                genre: "trap",
+                bpm: 140,
+                price: 29.99,
+                cover: "https://via.placeholder.com/300x180/1a1a1a/FFFFFF?text=Midnight+Trap",
+                audio: "https://example.com/audio1.mp3",
+                tags: ["dark", "hard", "bass"]
+            },
+            {
+                id: 2,
+                title: "Summer Vibes",
+                genre: "pop",
+                bpm: 110,
+                price: 24.99,
+                cover: "https://via.placeholder.com/300x180/1a1a1a/FFFFFF?text=Summer+Vibes",
+                audio: "https://example.com/audio2.mp3",
+                tags: ["happy", "melodic", "chill"]
+            },
+            {
+                id: 3,
+                title: "Urban Flow",
+                genre: "hiphop",
+                bpm: 95,
+                price: 27.99,
+                cover: "https://via.placeholder.com/300x180/1a1a1a/FFFFFF?text=Urban+Flow",
+                audio: "https://example.com/audio3.mp3",
+                tags: ["groove", "oldschool", "boom"]
+            },
+            {
+                id: 4,
+                title: "Dark Drill",
+                genre: "drill",
+                bpm: 145,
+                price: 34.99,
+                cover: "https://via.placeholder.com/300x180/1a1a1a/FFFFFF?text=Dark+Drill",
+                audio: "https://example.com/audio4.mp3",
+                tags: ["aggressive", "uk", "hard"]
+            },
+            {
+                id: 5,
+                title: "RnB Soul",
+                genre: "rnb",
+                bpm: 85,
+                price: 26.99,
+                cover: "https://via.placeholder.com/300x180/1a1a1a/FFFFFF?text=RnB+Soul",
+                audio: "https://example.com/audio5.mp3",
+                tags: ["smooth", "vocal", "chill"]
+            },
+            {
+                id: 6,
+                title: "Jazz Groove",
+                genre: "hiphop",
+                bpm: 92,
+                price: 28.99,
+                cover: "https://via.placeholder.com/300x180/1a1a1a/FFFFFF?text=Jazz+Groove",
+                audio: "https://example.com/audio6.mp3",
+                tags: ["jazzy", "sample", "boom"]
+            }
+        ];
+
+        // Корзина
+        let cart = JSON.parse(localStorage.getItem('beatCart')) || [];
+        const audioPlayer = document.getElementById('audio-player');
+
+        // Инициализация страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверка авторизации
+            const isLoggedIn = localStorage.getItem('isSellerLoggedIn') === 'true';
+            if (isLoggedIn) {
+                document.getElementById('auth-buttons').style.display = 'none';
+                document.getElementById('user-icon').style.display = 'flex';
+                document.getElementById('user-name').textContent = 
+                    localStorage.getItem('sellerName') || 'Кабинет';
+            }
+
+            // Загрузка битов
+            renderBeats(beats);
+            updateCart();
+
+            // Обработчики событий
+            document.getElementById('search-input').addEventListener('input', filterBeats);
+            document.getElementById('genre-filter').addEventListener('change', filterBeats);
+            document.getElementById('bpm-filter').addEventListener('change', filterBeats);
+            document.getElementById('sort-by').addEventListener('change', filterBeats);
+            
+            // Корзина
+            document.getElementById('cart-icon').addEventListener('click', openCart);
+            document.getElementById('close-cart').addEventListener('click', closeCart);
+            document.getElementById('checkout-btn').addEventListener('click', checkout);
+        });
+
+        // Отображение битов
+        function renderBeats(beatsToRender) {
+            const beatGrid = document.getElementById('beat-grid');
+            beatGrid.innerHTML = '';
+
+            if (beatsToRender.length === 0) {
+                beatGrid.innerHTML = '<div class="no-results">Биты не найдены</div>';
+                return;
+            }
+
+            beatsToRender.forEach(beat => {
+                const isInCart = cart.some(item => item.id === beat.id);
+                
+                const beatCard = document.createElement('div');
+                beatCard.className = 'beat-card';
+                beatCard.dataset.id = beat.id;
+                beatCard.dataset.genre = beat.genre;
+                beatCard.dataset.bpm = beat.bpm;
+                beatCard.dataset.tags = beat.tags.join(',');
+                
+                beatCard.innerHTML = `
+                    <div class="beat-cover">
+                        <img src="${beat.cover}" alt="${beat.title}">
+                        <div class="play-btn" data-audio="${beat.audio}">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="beat-info">
+                        <h3 class="beat-title">${beat.title}</h3>
+                        <div class="beat-meta">
+                            <span>${beat.genre.toUpperCase()}</span>
+                            <span>${beat.bpm} BPM</span>
+                        </div>
+                        <div class="beat-price">$${beat.price.toFixed(2)}</div>
+                        <button class="add-to-cart ${isInCart ? 'added' : ''}" data-id="${beat.id}">
+                            ${isInCart ? '<i class="fas fa-check"></i> В корзине' : '<i class="fas fa-cart-plus"></i> В корзину'}
+                        </button>
+                    </div>
+                `;
+                
+                beatGrid.appendChild(beatCard);
+            });
+
+            // Добавление обработчиков
+            document.querySelectorAll('.play-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    playAudio(this.dataset.audio);
+                });
+            });
+
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const beatId = parseInt(this.dataset.id);
+                    toggleCart(beatId);
+                });
+            });
+
+            document.querySelectorAll('.beat-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const beatId = parseInt(this.dataset.id);
+                    const beat = beats.find(b => b.id === beatId);
+                    if (beat) {
+                        // В реальном проекте переход на страницу бита
+                        console.log('Открыть страницу бита:', beat.title);
+                    }
+                });
+            });
+        }
+
+        // Фильтрация и поиск битов
+        function filterBeats() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const genreFilter = document.getElementById('genre-filter').value;
+            const bpmFilter = document.getElementById('bpm-filter').value;
+            const sortBy = document.getElementById('sort-by').value;
+
+            let filtered = [...beats];
+
+            // Поиск по названию и тегам
+            if (searchTerm) {
+                filtered = filtered.filter(beat => 
+                    beat.title.toLowerCase().includes(searchTerm) || 
+                    beat.tags.some(tag => tag.includes(searchTerm)))
+            }
+
+            // Фильтр по жанру
+            if (genreFilter !== 'all') {
+                filtered = filtered.filter(beat => beat.genre === genreFilter);
+            }
+
+            // Фильтр по BPM
+            if (bpmFilter !== 'all') {
+                const [min, max] = bpmFilter.split('-').map(Number);
+                if (bpmFilter.endsWith('+')) {
+                    filtered = filtered.filter(beat => beat.bpm >= 150);
+                } else {
+                    filtered = filtered.filter(beat => beat.bpm >= min && beat.bpm <= max);
+                }
+            }
+
+            // Сортировка
+            switch (sortBy) {
+                case 'newest':
+                    filtered.sort((a, b) => b.id - a.id);
+                    break;
+                case 'price-low':
+                    filtered.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-high':
+                    filtered.sort((a, b) => b.price - a.price);
+                    break;
+                default: // popular
+                    filtered.sort((a, b) => (b.id % 6) - (a.id % 6)); // эмуляция популярности
+            }
+
+            renderBeats(filtered);
+        }
+
+        // Воспроизведение аудио
+        function playAudio(url) {
+            audioPlayer.src = url;
+            audioPlayer.play().catch(e => console.log('Автовоспроизведение заблокировано:', e));
+        }
+
+        // Работа с корзиной
+        function toggleCart(beatId) {
+            const beat = beats.find(b => b.id === beatId);
+            if (!beat) return;
+
+            const existingItem = cart.find(item => item.id === beatId);
+            const addToCartBtn = document.querySelector(`.add-to-cart[data-id="${beatId}"]`);
+
+            if (existingItem) {
+                // Удаляем из корзины
+                cart = cart.filter(item => item.id !== beatId);
+                addToCartBtn.innerHTML = '<i class="fas fa-cart-plus"></i> В корзину';
+                addToCartBtn.classList.remove('added');
+            } else {
+                // Добавляем в корзину
+                cart.push({
+                    id: beat.id,
+                    title: beat.title,
+                    price: beat.price,
+                    cover: beat.cover
+                });
+                addToCartBtn.innerHTML = '<i class="fas fa-check"></i> В корзине';
+                addToCartBtn.classList.add('added');
+            }
+
+            updateCart();
+        }
+
+        function updateCart() {
+            // Сохраняем в localStorage
+            localStorage.setItem('beatCart', JSON.stringify(cart));
+
+            // Обновляем счетчик
+            document.getElementById('cart-count').textContent = cart.length;
+
+            // Обновляем содержимое корзины
+            const cartItems = document.getElementById('cart-items');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
+                document.getElementById('cart-total').textContent = '0';
+                return;
+            }
+
+            cartItems.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                total += item.price;
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div class="cart-item-info">
+                        <div class="cart-item-title">${item.title}</div>
+                        <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+                    </div>
+                    <button class="remove-item" data-id="${item.id}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                cartItems.appendChild(cartItem);
+            });
+
+            document.getElementById('cart-total').textContent = total.toFixed(2);
+
+            // Добавляем обработчики для кнопок удаления
+            document.querySelectorAll('.remove-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const itemId = parseInt(this.dataset.id);
+                    cart = cart.filter(item => item.id !== itemId);
+                    updateCart();
+                    
+                    // Обновляем кнопку "В корзину" в сетке
+                    const addToCartBtn = document.querySelector(`.add-to-cart[data-id="${itemId}"]`);
+                    if (addToCartBtn) {
+                        addToCartBtn.innerHTML = '<i class="fas fa-cart-plus"></i> В корзину';
+                        addToCartBtn.classList.remove('added');
+                    }
+                });
+            });
+        }
+
+        function openCart() {
+            document.getElementById('cart-modal').style.display = 'block';
+        }
+
+        function closeCart() {
+            document.getElementById('cart-modal').style.display = 'none';
+        }
+
+        function checkout() {
+            if (cart.length === 0) return;
+            
+            // В реальном проекте - переход на страницу оформления заказа
+            alert(`Заказ оформлен! Сумма: $${cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}`);
+            cart = [];
+            updateCart();
+            closeCart();
+            
+            // Обновляем все кнопки "В корзине"
+            document.querySelectorAll('.add-to-cart.added').forEach(btn => {
+                btn.innerHTML = '<i class="fas fa-cart-plus"></i> В корзину';
+                btn.classList.remove('added');
+            });
+        }
+    </script>
+</body>
+</html>
